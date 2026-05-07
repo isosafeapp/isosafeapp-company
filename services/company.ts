@@ -29,7 +29,7 @@ export async function updateCompanyService(
 }
 
 // ✅ Get company by user ID
-export async function getCompanyByUserId(userId: string) {
+export async function getCompanyByUserIdService(userId: string) {
   await connectDB();
   return await Company.findOne({ userId: new Types.ObjectId(userId) }).lean();
 }

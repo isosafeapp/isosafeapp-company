@@ -35,6 +35,11 @@ export const setPasswordFormSchema = z
 
 export type SetPasswordForm = z.infer<typeof setPasswordFormSchema>;
 
+export const loginUserformSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
 export const registerEmployeeFormSchema = z
   .object({
     email: z.email(),
@@ -87,5 +92,5 @@ export const registerCompanyFormSchema = z
     }
   });
 
-export type RegisterEmployeeForm = z.infer<typeof registerEmployeeFormSchema>;
+export type LoginUserForm = z.infer<typeof loginUserformSchema>;
 export type RegisterCompanyForm = z.infer<typeof registerCompanyFormSchema>;

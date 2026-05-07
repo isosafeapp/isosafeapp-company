@@ -2,11 +2,16 @@
 
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
-import { registerCompanyFormSchema } from "@/validations/auth";
-import { createUser } from "@/services/user";
+import {
+  loginUserformSchema,
+  registerCompanyFormSchema,
+} from "@/validations/auth";
+import { createUser, getUserByEmail } from "@/services/user";
 import { updateCompanyService } from "@/services/company";
 import { createSession } from "@/lib/session";
-import { COMPANY } from "@/constants/roles";
+import { COMPANY, EMPLOYEE } from "@/constants/roles";
+import { cookies } from "next/headers";
+import { getCompanyByUserId } from "@/data/company";
 
 export type RegisterCompanyState = {
   errors?: {
@@ -97,4 +102,78 @@ export async function registerCompany(
   }
 
   redirect("/");
+}
+
+export type LoginUserState = {
+  errors?: {
+    email?: string[];
+    password?: string[];
+  };
+  message?: string | null;
+};
+
+export async function loginUser(
+  prevState: LoginUserState | undefined,
+  formData: FormData,
+) {
+  const validatedFields = loginUserformSchema.safeParse(
+    Object.fromEntries(formData),
+  );
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Please check your inputs.",
+    };
+  }
+
+  const { email, password } = validatedFields.data;
+
+  try {
+    // Get user by email
+    const user = (await getUserByEmail(email)) as any;
+
+    if (!user) {
+      return {
+        errors: { email: ["User not found"] },
+        message: "No account found with this email.",
+      };
+    }
+    const userId = user._id.toString();
+    // Verify password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return {
+        errors: { password: ["Incorrect password"] },
+        message: "Invalid credentials.",
+      };
+    }
+
+    if (user.role !== COMPANY) {
+      return {
+        errors: { password: ["Company Admin Only"] },
+        message: "Company Admin Only.",
+      };
+    }
+
+    const company = await getCompanyByUserId(userId);
+
+    await createSession({
+      userId,
+      companyId: company?.id?.toString(),
+      role: COMPANY,
+    });
+  } catch (error: any) {
+    console.error("❌ loginUser error:", error);
+    return {
+      message: error.message || "Failed to login. Please try again.",
+    };
+  }
+  redirect("/");
+}
+
+export async function logout() {
+  const cookieStore = await cookies();
+  cookieStore.delete("session");
+  redirect("/login");
 }

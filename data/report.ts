@@ -1,22 +1,14 @@
 "use server";
 
 import {
-  createReportService,
-  createHazardsService,
   getReportByIdService,
   getHazardsByReportIdService,
-  getReportsByEmployeeIdService,
   getRecentReportsService,
   getAllReportsService,
   getEmployeeStatsService,
   getCompanyReportsService,
 } from "@/services/report";
-import {
-  CreateReportInput,
-  CreateHazardInput,
-  IReport,
-  IReportHazard,
-} from "@/definitions/report";
+import { IReport, IReportHazard } from "@/definitions/report";
 
 const mapReport = (report: any): IReport => ({
   id: report._id.toString(),
@@ -65,31 +57,6 @@ export async function getReportWithHazards(reportId: string) {
   } catch (error: any) {
     console.error("❌ getReportWithHazards error:", error);
     return { success: false, message: error.message };
-  }
-}
-
-export async function getEmployeeReports(employeeId: string, limit?: number) {
-  try {
-    const reports = await getReportsByEmployeeIdService(employeeId, limit);
-    const reportsWithCounts = await Promise.all(
-      reports.map(async (report) => {
-        const hazards = await getHazardsByReportIdService(
-          report._id.toString(),
-        );
-        return {
-          id: report._id.toString(),
-          title: report.title,
-          hazardCount: hazards.length,
-          status: report.status,
-          createdAt: report.createdAt,
-          location: report.location?.address,
-        };
-      }),
-    );
-    return { success: true, data: reportsWithCounts };
-  } catch (error: any) {
-    console.error("❌ getEmployeeReports error:", error);
-    return { success: false, data: [] };
   }
 }
 

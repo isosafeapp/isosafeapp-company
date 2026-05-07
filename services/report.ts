@@ -2,8 +2,6 @@ import Report from "@/models/report";
 import Hazard from "@/models/hazard";
 import Employee from "@/models/employee";
 import {
-  CreateReportInput,
-  CreateHazardInput,
   IEmployeeStats,
   ICompanyReportsResponse,
   IEmployeeReportsResponse,
@@ -12,48 +10,6 @@ import {
 } from "@/definitions/report";
 import { connectDB } from "@/lib/db";
 import { Types } from "mongoose";
-
-// ============ CRUD Operations ============
-
-export async function createReportService(data: CreateReportInput) {
-  await connectDB();
-
-  const report = await Report.create({
-    employeeId: new Types.ObjectId(data.employeeId),
-    companyId: new Types.ObjectId(data.companyId),
-    title: data.title,
-    description: data.description,
-    images: data.images || [],
-    location: data.location,
-    status: data.status,
-    isFinalized: data.isFinalized,
-    notes: data.notes,
-  });
-
-  return report;
-}
-
-export async function createHazardsService(
-  reportId: string,
-  hazards: CreateHazardInput[],
-) {
-  await connectDB();
-
-  const hazardsWithReportId = hazards.map((hazard) => ({
-    reportId: new Types.ObjectId(reportId),
-    description: hazard.description,
-    category: hazard.category,
-    severity: hazard.severity,
-    confidence: hazard.confidence,
-    isAIDetected: hazard.isAIDetected,
-    isManualOverride: hazard.isManualOverride,
-    originalDescription: hazard.originalDescription,
-    preventionTip: hazard.preventionTip,
-    status: hazard.status,
-  }));
-
-  return await Hazard.insertMany(hazardsWithReportId);
-}
 
 export async function getReportByIdService(reportId: string) {
   await connectDB();
@@ -66,7 +22,6 @@ export async function getHazardsByReportIdService(reportId: string) {
 }
 
 // ============ Employee Report Services ============
-
 export async function getReportsByEmployeeIdService(
   employeeId: string,
   limit?: number,

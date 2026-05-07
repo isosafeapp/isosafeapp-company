@@ -3,7 +3,7 @@
 interface PaginationProps {
   currentPage: number;
   pageCount: number;
-  pageSize: number;
+  pageSize?: number;
   onPageChange: (page: number) => void;
 }
 

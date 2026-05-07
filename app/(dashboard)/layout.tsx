@@ -1,7 +1,5 @@
-// app/(dashboard)/layout.tsx
 import { PAGE_PERMISSIONS } from "@/constants";
 import { canClient } from "@/lib/rbac";
-import { PagePermission } from "@/constants";
 import DashboardLayoutClient from "@/components/(dashboard)/layout-client";
 
 export default async function DashboardLayout({

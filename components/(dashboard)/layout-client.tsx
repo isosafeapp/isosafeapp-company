@@ -1,4 +1,3 @@
-// components/(dashboard)/layout-client.tsx
 "use client";
 
 import { useState } from "react";
@@ -8,7 +7,6 @@ import clsx from "clsx";
 import { Menu } from "lucide-react";
 import { PagePermission } from "@/constants";
 import { ICONS } from "@/constants";
-import Image from "next/image";
 
 export default function DashboardLayoutClient({
   children,
@@ -21,36 +19,37 @@ export default function DashboardLayoutClient({
   const [sidebarHovered, setSidebarHovered] = useState(false);
 
   const mainNav = allowedPages.filter((p) => p.section === "main");
-  const otherNav = allowedPages.filter((p) => p.section === "other");
 
   return (
-    <div className="flex min-h-screen bg-background text-text relative overflow-x-hidden">
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-gray-50 relative overflow-x-hidden">
+      {/* Desktop Sidebar */}
       <aside
         className={clsx(
-          "hidden md:flex flex-col fixed top-0 left-0 h-full bg-sidebar border-r border-border shadow-sidebar z-40 transition-all duration-300",
+          "hidden md:flex flex-col fixed top-0 left-0 h-full bg-white border-r border-gray-200 shadow-sm z-40 transition-all duration-300",
           sidebarHovered ? "w-56" : "w-16",
         )}
         onMouseEnter={() => setSidebarHovered(true)}
         onMouseLeave={() => setSidebarHovered(false)}
       >
         {/* Logo */}
-        <div className="flex items-center justify-center h-16 border-b border-border relative">
+        <div className="flex items-center justify-center h-16 border-b border-gray-200">
           <div
             className={clsx(
-              "transition-all duration-300",
+              "transition-all duration-300 font-bold text-xl flex items-center justify-center",
               sidebarHovered ? "w-32" : "w-8",
             )}
           >
-            <div className="text-green-600 font-bold text-xl flex items-center justify-center">
-              🌱
-            </div>
+            <span className="text-red-600 text-2xl">⚠️</span>
+            {sidebarHovered && (
+              <span className="ml-2 text-gray-800 text-sm">HazardDetect</span>
+            )}
           </div>
         </div>
 
         <nav className="flex-1 mt-4 space-y-1">
           {mainNav.map((item) => {
             const Icon = ICONS[item.icon as keyof typeof ICONS];
+            const isActive = pathname === item.href;
 
             return (
               <Link
@@ -59,11 +58,11 @@ export default function DashboardLayoutClient({
                 className={clsx(
                   "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
                   pathname === item.href
-                    ? "bg-active font-medium"
-                    : "hover:bg-hover",
+                    ? "bg-red-50 text-red-600 font-medium"
+                    : "text-gray-700 hover:bg-gray-100",
                 )}
               >
-                <Icon size={20} className="text-text shrink-0" />
+                <Icon size={20} className="shrink-0" />
                 <span
                   className={clsx(
                     "transition-opacity duration-200 text-sm whitespace-nowrap",
@@ -75,46 +74,36 @@ export default function DashboardLayoutClient({
               </Link>
             );
           })}
-
-          {otherNav.length > 0 && (
-            <div className="space-y-1">
-              {otherNav.map((item) => {
-                const Icon = ICONS[item.icon as keyof typeof ICONS];
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={clsx(
-                      "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                      pathname === item.href
-                        ? "bg-active font-medium"
-                        : "hover:bg-hover",
-                    )}
-                  >
-                    <Icon size={20} className="text-text shrink-0" />
-                    <span
-                      className={clsx(
-                        "transition-opacity duration-200 text-sm whitespace-nowrap",
-                        sidebarHovered ? "opacity-100" : "opacity-0",
-                      )}
-                    >
-                      {item.name}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+          <Link
+            href="/menu"
+            className={clsx(
+              "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+              pathname === "/menu"
+                ? "bg-red-50 text-red-600 font-medium"
+                : "text-gray-700 hover:bg-gray-100",
+            )}
+          >
+            <Menu size={20} className="shrink-0" />
+            <span
+              className={clsx(
+                "transition-opacity duration-200 text-sm whitespace-nowrap",
+                sidebarHovered ? "opacity-100" : "opacity-0",
+              )}
+            >
+              Menu
+            </span>
+          </Link>
         </nav>
       </aside>
 
-      {/* Main */}
-      <main className="flex-1 md:ml-20 p-4 pb-20 md:pb-4">{children}</main>
+      {/* Main Content */}
+      <main className="flex-1 md:ml-16 pb-20 md:pb-4 min-h-screen">
+        <div className="p-4">{children}</div>
+      </main>
 
-      {/* Mobile Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 z-50">
-        {mainNav.map((item) => {
+      {/* Mobile Bottom Navigation - Only Main Nav Items + Menu Button */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2 z-50 shadow-lg">
+        {mainNav.slice(0, 4).map((item) => {
           const Icon = ICONS[item.icon as keyof typeof ICONS];
           const isActive = pathname === item.href;
 
@@ -123,9 +112,9 @@ export default function DashboardLayoutClient({
               key={item.name}
               href={item.href}
               className={clsx(
-                "flex flex-col items-center text-xs transition-colors",
+                "flex flex-col items-center text-xs transition-colors py-1",
                 isActive
-                  ? "text-green-600 font-semibold"
+                  ? "text-red-600 font-semibold"
                   : "text-gray-500 hover:text-gray-700",
               )}
             >
@@ -135,7 +124,16 @@ export default function DashboardLayoutClient({
           );
         })}
 
-        <Link href="/journal" className="flex flex-col items-center text-xs">
+        {/* Menu Button - Navigates to /menu page */}
+        <Link
+          href="/menu"
+          className={clsx(
+            "flex flex-col items-center text-xs transition-colors py-1",
+            pathname === "/menu"
+              ? "text-red-600 font-semibold"
+              : "text-gray-500 hover:text-gray-700",
+          )}
+        >
           <Menu size={22} />
           <span className="mt-1">Menu</span>
         </Link>

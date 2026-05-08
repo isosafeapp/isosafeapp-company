@@ -56,7 +56,7 @@ export function AppUsageStats({ appUsage }: { appUsage: IAppUsageStats }) {
               </span>
             </div>
             <Link
-              href={`/company/employees/${appUsage.mostActiveEmployee.employeeId}`}
+              href={`/employees/${appUsage.mostActiveEmployee.employeeId}`}
             >
               <div className="flex items-center justify-between cursor-pointer hover:opacity-80">
                 <div className="flex items-center gap-2">

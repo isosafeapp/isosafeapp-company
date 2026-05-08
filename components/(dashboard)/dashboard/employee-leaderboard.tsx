@@ -47,7 +47,7 @@ export function EmployeeLeaderboard({
         {employees.map((employee, idx) => (
           <Link
             key={employee.employeeId}
-            href={`/company/employees/${employee.employeeId}`}
+            href={`/employees/${employee.employeeId}`}
           >
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition cursor-pointer">
               <div className="flex items-center gap-3">

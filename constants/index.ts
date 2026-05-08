@@ -2,29 +2,35 @@ import {
   LayoutDashboard,
   AlertTriangle,
   FileText,
-  Camera,
-  History,
+  Users,
+  BarChart3,
   Settings,
   LogOut,
   Menu,
   User,
   Bell,
   HelpCircle,
+  Shield,
+  Activity,
 } from "lucide-react";
 
 export const ICONS = {
   dashboard: LayoutDashboard,
-  hazards: AlertTriangle,
+  analytics: BarChart3,
+  employees: Users,
   reports: FileText,
-  camera: Camera,
-  history: History,
+  hazards: AlertTriangle,
   settings: Settings,
   logout: LogOut,
   menu: Menu,
   user: User,
   bell: Bell,
   help: HelpCircle,
+  shield: Shield,
+  activity: Activity,
 } as const;
+
+export type IconName = keyof typeof ICONS;
 
 export const months = [
   "Jan",
@@ -52,23 +58,23 @@ export type PagePermission = {
 
 export const PAGE_PERMISSIONS: PagePermission[] = [
   {
-    name: "Dashboard",
+    name: "Analytics",
     href: "/",
-    icon: "dashboard",
+    icon: "analytics",
     action: "read",
     resource: "dashboard",
     section: "main",
   },
   {
-    name: "New Report",
-    href: "/report",
-    icon: "camera",
-    action: "create",
-    resource: "report",
+    name: "Employees",
+    href: "/employees",
+    icon: "employees",
+    action: "read",
+    resource: "employee",
     section: "main",
   },
   {
-    name: "My Reports",
+    name: "Reports",
     href: "/reports",
     icon: "reports",
     action: "read",
@@ -76,27 +82,11 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     section: "main",
   },
   {
-    name: "Hazards",
-    href: "/hazards",
-    icon: "hazards",
-    action: "read",
-    resource: "hazards",
-    section: "other",
-  },
-  {
-    name: "Profile",
+    name: "Company Profile",
     href: "/profile",
     icon: "user",
     action: "read",
     resource: "profile",
-    section: "other",
-  },
-  {
-    name: "Notifications",
-    href: "/notifications",
-    icon: "bell",
-    action: "read",
-    resource: "notifications",
     section: "other",
   },
   {

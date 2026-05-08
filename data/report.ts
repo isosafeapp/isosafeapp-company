@@ -117,7 +117,7 @@ export async function getCompanyReports(
       limit,
       employeeId,
     );
-    console.log("✅ getCompanyReports result:", result);
+
     return { success: true, data: result };
   } catch (error: any) {
     console.error("❌ getCompanyReports error:", error);

@@ -6,6 +6,7 @@ import { FileText, ArrowLeft } from "lucide-react";
 import { CompanyReportsList } from "./list";
 import { CompanyReportsEmpty } from "./empty";
 import { Pagination } from "./pagination";
+import { ICompanyReport } from "@/definitions/report";
 
 interface Report {
   id: string;
@@ -25,7 +26,7 @@ export function CompanyReportsClient({
   employeeId,
   companyId,
 }: {
-  reports: Report[];
+  reports: ICompanyReport[];
   totalPages: number;
   currentPage: number;
   employeeId?: string;

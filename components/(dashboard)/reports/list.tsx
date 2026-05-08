@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CompanyReportCard } from "./card";
+import { ICompanyReport } from "@/definitions/report";
 
 interface Report {
   id: string;
@@ -18,7 +19,7 @@ export function CompanyReportsList({
   reports,
   companyId,
 }: {
-  reports: Report[];
+  reports: ICompanyReport[];
   companyId: string;
 }) {
   return (

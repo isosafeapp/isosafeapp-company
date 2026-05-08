@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FileText, ChevronRight, User, MapPin } from "lucide-react";
+import { ICompanyReport } from "@/definitions/report";
 
 interface Report {
   id: string;
@@ -25,7 +26,7 @@ export function CompanyReportCard({
   report,
   companyId,
 }: {
-  report: Report;
+  report: ICompanyReport;
   companyId: string;
 }) {
   const status = statusConfig[report.status];
@@ -59,7 +60,7 @@ export function CompanyReportCard({
                   {report.hazardCount !== 1 ? "s" : ""}
                 </span>
                 <span>•</span>
-                <span>{new Date(report.createdAt).toLocaleDateString()}</span>
+                <span>{new Date(report.createdAt!).toLocaleDateString()}</span>
               </div>
 
               {report.location && (

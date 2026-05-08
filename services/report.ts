@@ -5,7 +5,6 @@ import {
   IEmployeeStats,
   ICompanyReportsResponse,
   IEmployeeReportsResponse,
-  ICompanyReport,
   IEmployeeReport,
 } from "@/definitions/report";
 import { connectDB } from "@/lib/db";
@@ -137,7 +136,6 @@ export async function getAllReportsService(
 }
 
 // ============ Company Report Services (Aggregation for Performance) ============
-
 export async function getCompanyReportsService(
   companyId: string,
   page: number = 1,
@@ -148,79 +146,54 @@ export async function getCompanyReportsService(
 
   const skip = (page - 1) * limit;
 
-  // Build match stage
-  const matchStage: any = {
+  // Build query
+  const query: any = {
     companyId: new Types.ObjectId(companyId),
     isFinalized: true,
   };
 
   if (employeeId) {
-    matchStage.employeeId = new Types.ObjectId(employeeId);
+    query.employeeId = new Types.ObjectId(employeeId);
   }
 
-  // Aggregation pipeline for better performance
-  const [result] = await Report.aggregate([
-    { $match: matchStage },
-    { $sort: { createdAt: -1 } },
-    {
-      $facet: {
-        metadata: [{ $count: "total" }],
-        reports: [
-          { $skip: skip },
-          { $limit: limit },
-          {
-            $lookup: {
-              from: "employees",
-              localField: "employeeId",
-              foreignField: "_id",
-              as: "employee",
-            },
-          },
-          { $unwind: { path: "$employee", preserveNullAndEmptyArrays: true } },
-          {
-            $lookup: {
-              from: "hazards",
-              localField: "_id",
-              foreignField: "reportId",
-              as: "hazards",
-            },
-          },
-          {
-            $addFields: {
-              hazardCount: { $size: "$hazards" },
-              employeeName: {
-                $cond: {
-                  if: { $ifNull: ["$employee", false] },
-                  then: {
-                    $concat: ["$employee.firstName", " ", "$employee.lastName"],
-                  },
-                  else: "Unknown",
-                },
-              },
-            },
-          },
-          {
-            $project: {
-              id: { $toString: "$_id" },
-              title: 1,
-              employeeName: 1,
-              employeeId: { $toString: "$employeeId" },
-              hazardCount: 1,
-              status: 1,
-              createdAt: 1,
-              location: "$location.address",
-            },
-          },
-        ],
-      },
-    },
-  ]);
+  // Get total count
+  const total = await Report.countDocuments(query);
 
-  const reports: ICompanyReport[] = result?.reports || [];
-  const total = result?.metadata?.[0]?.total || 0;
+  // Get paginated reports
+  const reports = await Report.find(query)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  // Get employee names and hazard counts (using Promise.all for clarity)
+  const reportsWithDetails = await Promise.all(
+    reports.map(async (report) => {
+      // Get employee name
+      const employee = await Employee.findById(report.employeeId).lean();
+      const employeeName = employee
+        ? `${employee.firstName} ${employee.lastName}`
+        : "Unknown";
+
+      // Get hazard count
+      const hazardCount = await Hazard.countDocuments({ reportId: report._id });
+
+      // Return without _id
+      return {
+        id: report._id.toString(),
+        title: report.title,
+        employeeName,
+        employeeId: report.employeeId.toString(),
+        hazardCount,
+        status: report.status,
+        createdAt: report.createdAt,
+        location: report.location?.address,
+      };
+    }),
+  );
 
   return {
-    reports,
+    reports: reportsWithDetails,
     total,
     page,
     totalPages: Math.ceil(total / limit),

@@ -77,7 +77,7 @@ export interface ICompanyReport {
   employeeId: string;
   hazardCount: number;
   status: "draft" | "submitted" | "reviewed" | "resolved";
-  createdAt: Date;
+  createdAt: Date | undefined;
   location?: string;
 }
 

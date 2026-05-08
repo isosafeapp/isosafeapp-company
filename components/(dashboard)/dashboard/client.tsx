@@ -1,87 +1,53 @@
 "use client";
 
-import { useState } from "react";
-import {
-  LayoutDashboard,
-  Camera,
-  Image,
-  FileText,
-  History,
-} from "lucide-react";
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { IEmployee } from "@/definitions/employee";
-import { WelcomeBanner } from "./welcome-banner";
-import { StatsCards } from "./stats-cards";
-import { RecentReports } from "./recent-reports";
-import { ActionButtons } from "./action-buttons";
+import { BarChart3 } from "lucide-react";
+import { CompanyAnalyticsData } from "@/definitions/analytics";
+import { MetricsCards } from "./metrics-cards";
+import { SeverityChart } from "./severity-chart";
+import { HazardCategoriesChart } from "./hazard-categories-chart";
+import { MonthlyTrendsChart } from "./monthly-trends-chart";
+import { EmployeeLeaderboard } from "./employee-leaderboard";
+import { AppUsageStats } from "./app-usage-stats";
 
-interface Props {
-  employee: IEmployee;
-  initialStats: {
-    totalReports: number;
-    totalHazards: number;
-    pendingReports: number;
-  } | null;
-  initialReports: any[];
-}
-
-export function DashboardClient({
-  employee,
-  initialStats,
-  initialReports,
-}: Props) {
-  const [stats] = useState(
-    initialStats || {
-      totalReports: 0,
-      totalHazards: 0,
-      pendingReports: 0,
-    },
-  );
-
+export function AnalyticsClient({
+  analytics,
+  companyId,
+}: {
+  analytics: CompanyAnalyticsData;
+  companyId: string;
+}) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="space-y-6 max-w-4xl mx-auto"
-    >
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <LayoutDashboard className="w-6 h-6 text-red-600" />
-        <h1 className="text-xl font-semibold text-gray-800">Hazard Detect</h1>
+    <div className="max-w-7xl mx-auto">
+      <div className="flex items-center gap-2 mb-6">
+        <BarChart3 className="w-6 h-6 text-blue-600" />
+        <h1 className="text-xl font-semibold text-gray-800">
+          Analytics Dashboard
+        </h1>
       </div>
 
-      {/* Welcome Banner */}
-      <WelcomeBanner firstName={employee.firstName} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6"
+      >
+        <MetricsCards metrics={analytics.metrics} />
 
-      {/* Stats Cards */}
-      <StatsCards stats={stats} />
-
-      {/* Quick Actions */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-md font-semibold text-gray-700">Quick Actions</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SeverityChart severityStats={analytics.severityStats} />
+          <HazardCategoriesChart categories={analytics.topHazardCategories} />
         </div>
-        <ActionButtons />
-      </div>
 
-      {/* Recent Reports */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-md font-semibold text-gray-700 flex items-center gap-2">
-            <FileText size={18} className="text-red-600" />
-            Recent Reports
-          </h2>
-          <Link
-            href="/reports"
-            className="text-sm text-red-600 hover:underline"
-          >
-            View all →
-          </Link>
+        <MonthlyTrendsChart trends={analytics.monthlyTrends} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <EmployeeLeaderboard
+            employees={analytics.employeeLeaderboard}
+            companyId={companyId}
+          />
+          <AppUsageStats appUsage={analytics.appUsage} />
         </div>
-        <RecentReports reports={initialReports} />
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }

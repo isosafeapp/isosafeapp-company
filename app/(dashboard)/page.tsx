@@ -1,14 +1,12 @@
-import { DashboardClient } from "@/components/(dashboard)/dashboard/client";
+import { AnalyticsClient } from "@/components/(dashboard)/dashboard/client";
 import { verifySession } from "@/lib/dal";
-import { getEmployeeByUserId } from "@/data/employee";
-import { getEmployeeStats, getRecentReports } from "@/data/report";
-import { redirect } from "next/navigation";
-import { SessionPayload } from "@/definitions/auth";
 import { getCompanyByUserId } from "@/data/company";
+import { getCompanyAnalytics } from "@/data/analytics";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function AnalyticsPage() {
   const session = (await verifySession()) as any;
 
   if (!session) {
@@ -21,23 +19,19 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const userId = "69fc8b16c7c177e7e2e42f3c";
-  const employee = await getEmployeeByUserId(userId);
+  const result = await getCompanyAnalytics(company.id!);
 
-  if (!employee) {
-    redirect("/login");
+  if (!result.success) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-6 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {result.message || "Failed to load analytics"}
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  const statsResult = await getEmployeeStats(employee.id!);
-  const recentReportsResult = await getRecentReports(employee.id!, 5);
-
-  return (
-    <DashboardClient
-      employee={employee}
-      initialStats={statsResult.success ? statsResult.data : null}
-      initialReports={
-        recentReportsResult.success ? recentReportsResult.data : []
-      }
-    />
-  );
+  return <AnalyticsClient analytics={result.data!} companyId={company.id!} />;
 }

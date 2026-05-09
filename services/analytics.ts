@@ -8,7 +8,7 @@ import {
   HazardCategoryStat,
   EmployeeLeaderboardEntry,
   MonthlyReportTrend,
-  AppUsageStats,
+  IAppUsageStats,
 } from "@/definitions/analytics";
 import { connectDB } from "@/lib/db";
 import { Types } from "mongoose";
@@ -204,7 +204,7 @@ export async function getCompanyAnalyticsService(
   const mostActiveEmployee =
     employeeLeaderboard.length > 0 ? employeeLeaderboard[0] : null;
 
-  const appUsage: AppUsageStats = {
+  const appUsage: IAppUsageStats = {
     totalAppOpens: 0, // Would need separate tracking
     averageReportsPerEmployee,
     mostActiveEmployee: mostActiveEmployee

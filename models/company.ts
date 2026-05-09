@@ -30,6 +30,11 @@ const CompanySchema = new Schema<CompanyDocument>(
       default: "pending",
     },
     subscriptionExpiry: { type: Date },
+    subscriptionTier: {
+      type: String,
+      enum: ["essential", "standard", "premium"],
+      default: "standard",
+    },
     branding: {
       logo: { type: String },
       primaryColor: { type: String, default: "#3b82f6" },

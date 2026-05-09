@@ -11,6 +11,7 @@ export interface ICompany {
   userId?: string | Types.ObjectId; // company administrator (User)
   status: "active" | "suspended" | "pending";
   subscriptionExpiry?: Date;
+  subscriptionTier?: "essential" | "standard" | "premium";
   branding?: {
     logo?: string;
     primaryColor?: string;

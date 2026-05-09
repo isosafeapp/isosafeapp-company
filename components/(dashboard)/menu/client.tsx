@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, LogOut } from "lucide-react";
 import { logout } from "@/actions/auth";
 import { ICONS } from "@/constants";
+import Link from "next/link";
 
 interface NavItem {
   name: string;
@@ -29,7 +30,7 @@ export function MenuClient({ otherNavItems }: { otherNavItems: NavItem[] }) {
 
       {/* Menu List */}
       <div className="space-y-2 divide-y divide-gray-100">
-        {/* {otherNavItems.map((item, index) => {
+        {otherNavItems.map((item, index) => {
           const Icon = ICONS[item.iconName];
           return (
             <Link
@@ -44,7 +45,7 @@ export function MenuClient({ otherNavItems }: { otherNavItems: NavItem[] }) {
               <ChevronLeft className="w-4 h-4 text-gray-400 rotate-180" />
             </Link>
           );
-        })} */}
+        })}
 
         {/* Logout Option */}
         <button

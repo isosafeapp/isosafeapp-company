@@ -89,7 +89,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     resource: "profile",
     section: "other",
   },
-  {
+  /* {
     name: "Settings",
     href: "/settings",
     icon: "settings",
@@ -104,7 +104,7 @@ export const PAGE_PERMISSIONS: PagePermission[] = [
     action: "read",
     resource: "help",
     section: "other",
-  },
+  }, */
 ];
 
 // Export only icon names (not components) for server components

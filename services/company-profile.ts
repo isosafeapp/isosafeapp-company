@@ -3,17 +3,19 @@ import {
   UpdateCompanyProfileInput,
   SubscriptionInfo,
   BillingInfo,
-  Invoice,
+  CompanyProfile,
 } from "@/definitions/company-profile";
 import { connectDB } from "@/lib/db";
-import { Types } from "mongoose";
 
-export async function getCompanyProfileService(companyId: string) {
+export async function getCompanyProfileService(
+  companyId: string,
+): Promise<CompanyProfile | null> {
   await connectDB();
   const company = await Company.findById(companyId).lean();
 
   if (!company) return null;
 
+  // Return plain object with converted IDs and no null values
   return {
     id: company._id.toString(),
     name: company.name,
@@ -21,13 +23,14 @@ export async function getCompanyProfileService(companyId: string) {
     contactEmail: company.contactEmail,
     contactPhone: company.contactPhone,
     billingAddress: company.billingAddress,
-    vatNumber: company.vatNumber,
+    vatNumber: company.vatNumber || undefined,
     status: company.status,
     subscriptionTier: company.subscriptionTier || "standard",
-    subscriptionExpiry: company.subscriptionExpiry,
-    branding: company.branding || {
-      primaryColor: "#3b82f6",
-      secondaryColor: "#64748b",
+    subscriptionExpiry: company.subscriptionExpiry || undefined,
+    branding: {
+      logo: company.branding?.logo || undefined, // Convert null to undefined
+      primaryColor: company.branding?.primaryColor || "#3b82f6",
+      secondaryColor: company.branding?.secondaryColor || "#64748b",
     },
     createdAt: company.createdAt,
     updatedAt: company.updatedAt,
@@ -37,7 +40,7 @@ export async function getCompanyProfileService(companyId: string) {
 export async function updateCompanyProfileService(
   companyId: string,
   data: UpdateCompanyProfileInput,
-) {
+): Promise<CompanyProfile | null> {
   await connectDB();
 
   const updateData: any = { ...data };
@@ -46,7 +49,28 @@ export async function updateCompanyProfileService(
     new: true,
   }).lean();
 
-  return company;
+  if (!company) return null;
+
+  // Return plain serialized object (no MongoDB types, no null values)
+  return {
+    id: company._id.toString(),
+    name: company.name,
+    registrationNumber: company.registrationNumber,
+    contactEmail: company.contactEmail,
+    contactPhone: company.contactPhone,
+    billingAddress: company.billingAddress,
+    vatNumber: company.vatNumber || undefined,
+    status: company.status,
+    subscriptionTier: company.subscriptionTier || "standard",
+    subscriptionExpiry: company.subscriptionExpiry || undefined,
+    branding: {
+      logo: company.branding?.logo || undefined,
+      primaryColor: company.branding?.primaryColor || "#3b82f6",
+      secondaryColor: company.branding?.secondaryColor || "#64748b",
+    },
+    createdAt: company.createdAt,
+    updatedAt: company.updatedAt,
+  };
 }
 
 export async function getSubscriptionInfoService(
@@ -87,9 +111,9 @@ export async function getSubscriptionInfoService(
   };
 
   const prices = {
-    essential: 5000, // R5,000 per month
-    standard: 15000, // R15,000 per month
-    premium: 35000, // R35,000 per month
+    essential: 5000,
+    standard: 15000,
+    premium: 35000,
   };
 
   const tier = company.subscriptionTier || "standard";
@@ -100,7 +124,7 @@ export async function getSubscriptionInfoService(
 
   return {
     tier,
-    expiryDate,
+    expiryDate: expiryDate ? new Date(expiryDate) : null,
     isActive,
     features: features[tier],
     price: prices[tier],
@@ -114,13 +138,12 @@ export async function getBillingInfoService(
 
   const subscription = await getSubscriptionInfoService(companyId);
 
-  // Mock invoices - in production, fetch from billing system
-  const invoices: Invoice[] = [
+  const invoices = [
     {
       id: "1",
       invoiceNumber: "INV-2024-001",
       amount: subscription.price,
-      status: "paid",
+      status: "paid" as const,
       dueDate: new Date("2024-01-15"),
       paidAt: new Date("2024-01-10"),
     },
@@ -128,7 +151,7 @@ export async function getBillingInfoService(
       id: "2",
       invoiceNumber: "INV-2024-002",
       amount: subscription.price,
-      status: "paid",
+      status: "paid" as const,
       dueDate: new Date("2024-02-15"),
       paidAt: new Date("2024-02-12"),
     },
@@ -136,7 +159,7 @@ export async function getBillingInfoService(
       id: "3",
       invoiceNumber: "INV-2024-003",
       amount: subscription.price,
-      status: "pending",
+      status: "pending" as const,
       dueDate: new Date("2024-03-15"),
     },
   ];

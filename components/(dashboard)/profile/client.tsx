@@ -157,7 +157,7 @@ export function CompanyProfileClient({
         )}
       </motion.div>
 
-      {/* Edit Modal */}
+      {/* Edit Company Modal */}
       <CompanyModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
